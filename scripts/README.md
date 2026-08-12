@@ -7,8 +7,8 @@ Python이나 별도 프레임워크 없이 `curl`, `jq`, `awk`, `sed`만 사용�
 ## 사용 데이터 소스 (모두 무료, API 키 불필요)
 
 - 환율: [er-api.com](https://www.exchangerate-api.com/docs/free) — `https://open.er-api.com/v6/latest/USD`
-- 금 가격: [stooq.com](https://stooq.com) 무료 CSV 시세 — `https://stooq.com/q/l/?s=xauusd&f=sd2t2ohlcv&h&e=csv`
-  - WTI유로 바꾸고 싶으면 `s=xauusd`를 `s=cl.f`(WTI 선물)로 교체하면 됩니다.
+- 금 가격: [goldprice.org](https://goldprice.org) 무료 JSON 시세 — `https://data-asg.goldprice.org/dbXRates/USD`
+  - `Referer: https://goldprice.org/` 헤더가 없으면 403 Forbidden을 반환하므로 반드시 함께 보내야 합니다.
 
 두 요청 모두 IP 차단을 피하기 위해 일반 브라우저처럼 보이는 `User-Agent` 헤더를 붙여 보냅니다.
 
