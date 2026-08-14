@@ -16,16 +16,13 @@ Attribute VB_Name = "Module1"
 Sub RefreshMorningData()
     On Error GoTo ErrHandler
 
-    Dim result As String
-    result = AppleScriptTask("RunMorningResearch.applescript", "run_research", "")
+    Dim csvPath As String
+    csvPath = AppleScriptTask("RunMorningResearch.applescript", "run_research", "")
 
-    If Left$(result, 5) = "ERROR" Then
-        MsgBox "쉘 스크립트 실행 실패: " & result, vbExclamation
+    If Left$(csvPath, 5) = "ERROR" Then
+        MsgBox "쉘 스크립트 실행 실패: " & csvPath, vbExclamation
         Exit Sub
     End If
-
-    Dim csvPath As String
-    csvPath = Environ("HOME") & "/Desktop/마스터시트_원자재.csv"
 
     If Dir(csvPath) = "" Then
         MsgBox "CSV 파일을 찾을 수 없습니다: " & csvPath, vbExclamation
