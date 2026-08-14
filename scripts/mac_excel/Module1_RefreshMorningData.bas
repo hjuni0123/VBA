@@ -3,8 +3,12 @@ Attribute VB_Name = "Module1"
 '
 ' RefreshMorningData:
 '   1) AppleScriptTask로 morning_research.sh를 실행시켜
-'      ~/Desktop/마스터시트_원자재.csv 에 최신 한 줄을 append
-'   2) 그 CSV의 마지막 줄을 읽어 "Dashboard" 시트에 표시
+'      ~/Desktop/마스터시트_원자재.csv 에 최신 한 줄을 append하고,
+'      그 마지막 줄의 내용을 그대로 문자열로 돌려받음
+'      (VBA의 Dir()/Open은 Mac에서 한글 파일명 정규화 문제로
+'       파일을 못 찾는 경우가 있어, 파일을 직접 열지 않고
+'       AppleScript가 읽은 내용을 그대로 사용한다)
+'   2) 그 내용을 "Dashboard" 시트에 표시
 '   3) "Log" 시트에 같은 값을 누적 (같은 타임스탬프면 중복 추가 안 함)
 '
 ' 필요 시트 구조 (미리 만들어두어야 함):
@@ -16,27 +20,13 @@ Attribute VB_Name = "Module1"
 Sub RefreshMorningData()
     On Error GoTo ErrHandler
 
-    Dim csvPath As String
-    csvPath = AppleScriptTask("RunMorningResearch.applescript", "run_research", "")
-
-    If Left$(csvPath, 5) = "ERROR" Then
-        MsgBox "쉘 스크립트 실행 실패: " & csvPath, vbExclamation
-        Exit Sub
-    End If
-
-    If Dir(csvPath) = "" Then
-        MsgBox "CSV 파일을 찾을 수 없습니다: " & csvPath, vbExclamation
-        Exit Sub
-    End If
-
     Dim lastLine As String
-    Dim fNum As Integer
-    fNum = FreeFile
-    Open csvPath For Input As #fNum
-    Do Until EOF(fNum)
-        Line Input #fNum, lastLine
-    Loop
-    Close #fNum
+    lastLine = AppleScriptTask("RunMorningResearch.applescript", "run_research", "")
+
+    If Left$(lastLine, 5) = "ERROR" Then
+        MsgBox "데이터 수집 실패: " & lastLine, vbExclamation
+        Exit Sub
+    End If
 
     Dim fields() As String
     fields = Split(lastLine, ",")

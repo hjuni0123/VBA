@@ -8,11 +8,10 @@
 --
 -- 핸들러 이름(run_research)과 파라미터 1개는 AppleScriptTask 규격상 필수.
 --
--- 성공 시 CSV 파일의 실제 경로(POSIX path)를 문자열로 반환한다.
--- (한글 파일명을 VBA 코드에 직접 적으면 macOS의 NFD 정규화 때문에
---  같은 글자처럼 보여도 바이트가 달라 Dir()/Open이 파일을 못 찾는
---  문제가 생길 수 있어, 실제 파일시스템에서 찾은 경로 문자열을
---  그대로 돌려주는 방식으로 우회한다.)
+-- VBA의 Dir()/Open은 Mac에서 한글(비 ASCII) 파일명을 다룰 때
+-- 정규화(NFC/NFD) 문제로 파일을 못 찾는 경우가 있어, 아예 VBA가
+-- 파일을 직접 열지 않도록 이 스크립트가 CSV의 "마지막 줄 내용"
+-- 자체를 읽어서 문자열로 돌려준다.
 
 on run_research(dummyArg)
 	set scriptPath to (POSIX path of (path to home folder)) & "VBA/scripts/morning_research.sh"
@@ -28,7 +27,12 @@ on run_research(dummyArg)
 		if csvPath is "" then
 			return "ERROR: CSV_NOT_FOUND"
 		end if
-		return csvPath
+
+		set lastLine to do shell script "tail -n 1 " & quoted form of csvPath
+		if lastLine is "" then
+			return "ERROR: CSV_EMPTY"
+		end if
+		return lastLine
 	on error errMsg
 		return "ERROR: " & errMsg
 	end try
